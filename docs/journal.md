@@ -13,3 +13,9 @@
 - Dates lues comme du texte → à convertir en dates.
 - Montants à 15 décimales → arrondir au centime, type décimal.
 - Pas d'identifiant patient (40 235 noms distincts) → une collection de séjours.
+## Étape 3 — Modèle de données
+- Base `healthcare`, collection `admissions`, 1 document = 1 séjour.
+- Sous-documents : patient, admission, medical, billing (+ hospital).
+- Pas de collection patients : aucun identifiant patient fiable.
+- Types : âge et chambre en int, dates en date, montant en décimal, catégories en liste autorisée.
+- 5 index : nom, pathologie + date, date, hôpital, assureur.
