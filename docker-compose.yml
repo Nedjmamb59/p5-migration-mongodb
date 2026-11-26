@@ -1,0 +1,76 @@
+# Migration du dataset médical vers MongoDB - DataSoluTech / P5
+#   docker compose up --build   -> démarre MongoDB puis lance la migration + les tests
+name: p5-healthcare
+
+services:
+  # ----- La base de données MongoDB (image officielle) -----
+  mongodb:
+    image: mongo:8.0
+    container_name: p5-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+      MONGO_COLLECTION: ${MONGO_COLLECTION}
+      MIGRATION_USER: ${MIGRATION_USER}
+      MIGRATION_PASSWORD: ${MIGRATION_PASSWORD}
+      ANALYST_USER: ${ANALYST_USER}
+      ANALYST_PASSWORD: ${ANALYST_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_PASSWORD: ${APP_PASSWORD}
+      DB_ADMIN_USER: ${DB_ADMIN_USER}
+      DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
+    ports:
+      - "127.0.0.1:27017:27017"          # accessible uniquement depuis votre PC
+    volumes:
+      - mongo_data:/data/db                                  # données persistantes
+      - ./docker/mongo-init:/docker-entrypoint-initdb.d:ro   # script des comptes
+    networks:
+      - healthcare_net
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet -u \"$$MIGRATION_USER\" -p \"$$MIGRATION_PASSWORD\" --authenticationDatabase \"$$MONGO_INITDB_DATABASE\" --eval \"db.adminCommand('ping').ok\" | grep -q 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # ----- Le script de migration (construit avec le Dockerfile) -----
+  migration:
+    build: .
+    image: p5-healthcare-migration:1.0
+    container_name: p5-migration
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: ${MONGO_DB}
+      MONGO_COLLECTION: ${MONGO_COLLECTION}
+      MIGRATION_USER: ${MIGRATION_USER}
+      MIGRATION_PASSWORD: ${MIGRATION_PASSWORD}
+      ANALYST_USER: ${ANALYST_USER}
+      ANALYST_PASSWORD: ${ANALYST_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_PASSWORD: ${APP_PASSWORD}
+      CSV_PATH: /data/csv/healthcare_dataset.csv
+      EXPORT_DIR: /app/exports
+      BATCH_SIZE: ${BATCH_SIZE:-5000}
+    volumes:
+      - ./data:/data/csv:ro          # le CSV, en lecture seule
+      - exports:/app/exports         # les fichiers exportés
+    networks:
+      - healthcare_net
+    restart: "no"
+
+volumes:
+  mongo_data:
+    name: p5_mongo_data
+  exports:
+    name: p5_exports
+
+networks:
+  healthcare_net:
+    name: p5_healthcare_net
+    driver: bridge
