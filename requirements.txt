@@ -1,0 +1,6 @@
+pandas==3.0.5
+numpy==2.5.3
+pymongo==4.20.1
+dnspython==2.9.2
+python-dotenv==1.2.3
+pytest==9.1.1
