@@ -1,0 +1,9 @@
+.git
+.env
+.venv
+data/
+exports/
+docs/
+**/__pycache__
+.pytest_cache
+*.md
