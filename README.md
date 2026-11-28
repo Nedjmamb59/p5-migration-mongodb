@@ -50,14 +50,7 @@ Le client, un acteur de santé, rencontre des problèmes de **scalabilité** dan
 
 ![Architecture Docker](docs/img/architecture.png)
 
-```mermaid
-flowchart LR
-    CSV[("data/healthcare_dataset.csv")] -- "bind mount :ro" --> MIG["p5-migration<br/>python:3.13-slim"]
-    MIG -- "SCRAM-SHA-256 :27017" --> MDB[("p5-mongodb<br/>mongo:8.0 --auth")]
-    INIT["mongo-init/01-create-users.js"] -- "1er démarrage" --> MDB
-    MDB --- V1[("volume p5_mongo_data")]
-    MIG --- V2[("volume p5_exports")]
-```
+*Source du schéma (code Mermaid, modifiable) : [`docs/diagrams/architecture.mmd`](docs/diagrams/architecture.mmd)*
 
 | Élément | Nom | Rôle |
 |---|---|---|
@@ -209,30 +202,7 @@ Le script renvoie le code **0** si tous les contrôles passent, **1** sinon (exp
 
 ![Schéma de la collection](docs/img/schema.png)
 
-```mermaid
-erDiagram
-    ADMISSIONS ||--|| PATIENT : patient
-    ADMISSIONS ||--|| ADMISSION : admission
-    ADMISSIONS ||--|| MEDICAL : medical
-    ADMISSIONS ||--|| BILLING : billing
-    ADMISSIONS { ObjectId _id PK
-                 string hospital }
-    PATIENT { string name
-              int age
-              string gender
-              string blood_type }
-    ADMISSION { date admission_date
-                date discharge_date
-                int length_of_stay_days
-                string admission_type
-                int room_number }
-    MEDICAL { string condition
-              string medication
-              string test_results
-              string doctor }
-    BILLING { decimal amount
-              string insurance_provider }
-```
+*Source du schéma (code Mermaid, modifiable) : [`docs/diagrams/schema.mmd`](docs/diagrams/schema.mmd)*
 
 ### Exemple de document
 ```json
