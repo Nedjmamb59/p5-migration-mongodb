@@ -1,0 +1,20 @@
+flowchart LR
+    subgraph HOST["Machine hôte"]
+        CSV[("data/healthcare_dataset.csv")]
+        ENV[".env (secrets)"]
+    end
+    subgraph NET["Réseau Docker : p5_healthcare_net"]
+        MIG["Conteneur <b>p5-migration</b><br/>python:3.13-slim<br/>app.migrate + pytest"]
+        MDB[("Conteneur <b>p5-mongodb</b><br/>mongo:8.0 --auth<br/>base healthcare")]
+    end
+    VOL1[("Volume <b>p5_mongo_data</b><br/>/data/db")]
+    VOL2[("Volume <b>p5_exports</b><br/>JSON / CSV")]
+    INIT["docker/mongo-init/<br/>01-create-users.js"]
+
+    CSV -- "bind mount (lecture seule)" --> MIG
+    ENV -. variables .-> MIG
+    ENV -. variables .-> MDB
+    INIT -- "1er démarrage" --> MDB
+    MIG -- "SCRAM-SHA-256<br/>port 27017" --> MDB
+    MDB --- VOL1
+    MIG --- VOL2

@@ -1,0 +1,36 @@
+erDiagram
+    ADMISSIONS {
+        ObjectId _id PK
+        object patient "sous-document"
+        object admission "sous-document"
+        object medical "sous-document"
+        string hospital
+        object billing "sous-document"
+    }
+    PATIENT {
+        string name "Title Case, indexé"
+        int age "0-120"
+        string gender "Male | Female"
+        string blood_type "A+ A- B+ B- AB+ AB- O+ O-"
+    }
+    ADMISSION {
+        date admission_date "indexé"
+        date discharge_date
+        int length_of_stay_days "calculé"
+        string admission_type "Urgent | Emergency | Elective"
+        int room_number
+    }
+    MEDICAL {
+        string condition "indexé (composé)"
+        string medication
+        string test_results "Normal | Abnormal | Inconclusive"
+        string doctor
+    }
+    BILLING {
+        decimal amount "Decimal128, 2 décimales"
+        string insurance_provider "indexé"
+    }
+    ADMISSIONS ||--|| PATIENT : "patient"
+    ADMISSIONS ||--|| ADMISSION : "admission"
+    ADMISSIONS ||--|| MEDICAL : "medical"
+    ADMISSIONS ||--|| BILLING : "billing"

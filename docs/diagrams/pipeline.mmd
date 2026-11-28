@@ -1,0 +1,10 @@
+flowchart LR
+    A["1. Extract<br/>load_csv()<br/>tout en texte"] --> B["2. Audit AVANT<br/>audit_dataframe()<br/>colonnes, NA, doublons, types"]
+    B --> C["3. Transform<br/>clean_dataframe()<br/>casse, typage, -534 doublons"]
+    C --> D["4. Modélisation<br/>to_documents()<br/>sous-documents imbriqués"]
+    D --> E["5. Load<br/>collection validée $jsonSchema<br/>insert_many par lots de 5 000"]
+    E --> F["6. Index<br/>5 index ciblés"]
+    F --> G["7. Contrôles APRÈS<br/>compare_with_source()<br/>comptage, types, sommes"]
+    G --> H{"Tous OK ?"}
+    H -- oui --> I["exit 0 + pytest"]
+    H -- non --> J["exit 1"]

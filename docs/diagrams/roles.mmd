@@ -1,0 +1,12 @@
+flowchart TB
+    ROOT["<b>root_admin</b><br/>base admin · rôle root<br/>Administration du serveur"]
+    subgraph DB["Base healthcare"]
+        DBA["<b>healthcare_admin</b><br/>dbOwner<br/>Index, stats, utilisateurs de la base"]
+        MIG["<b>migration_user</b><br/>readWrite + dbAdmin<br/>Recrée la collection, charge, indexe"]
+        APP["<b>app_user</b><br/>admissionsWriter (personnalisé)<br/>find · insert · update — PAS delete"]
+        ANA["<b>analyst_user</b><br/>read<br/>Lecture seule, analyses"]
+    end
+    ROOT --> DBA
+    DBA --> MIG
+    DBA --> APP
+    DBA --> ANA
